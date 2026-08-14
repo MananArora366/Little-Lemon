@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Little Lemon Restaurant</title>
+    {% block extra_css %}{% endblock %}
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
         body { background: #495E57; color: #EDEFEE; min-height: 100vh; display: flex; flex-direction: column; }
@@ -28,10 +29,10 @@
     <header>
         <div class="logo">Little <span>Lemon</span></div>
         <nav>
-            <a href="/">Home</a>
-            <a href="/web-menu/">Web Menu</a>
-            <a href="/web-book/">Web Book</a>
-            <a href="/menu/">API Menu</a>
+            <a href="{% url 'restaurant:index' %}">Home</a>
+            <a href="{% url 'restaurant:web-menu' %}">Web Menu</a>
+            <a href="{% url 'restaurant:web-book' %}">Web Book</a>
+            <a href="{% url 'restaurant:menu-list' %}">API Menu</a>
             <a href="/admin/">Admin</a>
         </nav>
     </header>

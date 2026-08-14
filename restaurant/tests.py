@@ -39,3 +39,19 @@ class BookingModelTest(TestCase):
         booking = Booking.objects.create(name="John Doe", no_of_guests=4, booking_date=now)
         self.assertEqual(booking.name, "John Doe")
         self.assertEqual(booking.no_of_guests, 4)
+
+class WebViewTest(TestCase):
+    def test_menu_page_renders(self):
+        Menu.objects.create(title="Bruschetta", price=12.99, inventory=25)
+        r = self.client.get('/web-menu/')
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "Bruschetta")
+
+    def test_booking_post_redirects(self):
+        r = self.client.post('/web-book/', {
+            "name": "Manan", 
+            "no_of_guests": 4,
+            "booking_date": "2026-08-20T19:00",
+        })
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(Booking.objects.count(), 1)

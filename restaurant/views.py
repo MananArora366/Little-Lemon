@@ -1,6 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from rest_framework import generics, viewsets
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny
 from .models import Menu, Booking
 from .serializers import MenuSerializer, BookingSerializer
 
@@ -27,6 +27,7 @@ def web_book_view(request):
         form = BookingForm(request.POST)
         if form.is_valid():
             form.save() # Saves directly to the database
+            return redirect('restaurant:web-book')
     else:
         # If it's a normal visit (GET request), just show a blank form
         form = BookingForm()
