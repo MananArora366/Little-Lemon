@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.utils import timezone
+from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 from .models import Menu, Booking
@@ -20,7 +21,7 @@ class MenuViewTest(TestCase):
         self.item2 = Menu.objects.create(title="Lemon Dessert", price=8.50, inventory=15)
 
     def test_getall(self):
-        response = self.client.get('/menu/')
+        response = self.client.get(reverse('restaurant:menu-list'))
         items = Menu.objects.all()
         serializer = MenuSerializer(items, many=True)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -28,7 +29,7 @@ class MenuViewTest(TestCase):
 
     def test_create_item(self):
         payload = {"title": "Greek Salad", "price": "14.50", "inventory": 30}
-        response = self.client.post('/menu/', payload)
+        response = self.client.post(reverse('restaurant:menu-list'), payload)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Menu.objects.count(), 3)
 
@@ -43,12 +44,12 @@ class BookingModelTest(TestCase):
 class WebViewTest(TestCase):
     def test_menu_page_renders(self):
         Menu.objects.create(title="Bruschetta", price=12.99, inventory=25)
-        r = self.client.get('/web-menu/')
+        r = self.client.get(reverse('restaurant:web-menu'))
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, "Bruschetta")
 
     def test_booking_post_redirects(self):
-        r = self.client.post('/web-book/', {
+        r = self.client.post(reverse('restaurant:web-book'), {
             "name": "Manan", 
             "no_of_guests": 4,
             "booking_date": "2026-08-20T19:00",
