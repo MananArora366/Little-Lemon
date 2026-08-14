@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from rest_framework import generics, viewsets
 from rest_framework.permissions import AllowAny
 from .models import Menu, Booking
@@ -27,6 +28,7 @@ def web_book_view(request):
         form = BookingForm(request.POST)
         if form.is_valid():
             form.save() # Saves directly to the database
+            messages.success(request, "Booking confirmed! We look forward to hosting you.")
             return redirect('restaurant:web-book')
     else:
         # If it's a normal visit (GET request), just show a blank form

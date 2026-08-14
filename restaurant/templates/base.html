@@ -37,6 +37,13 @@
         </nav>
     </header>
     <main>
+        {% if messages %}
+            <div style="max-width: 700px; margin: 1rem auto; padding: 1rem; background: #F4CE14; color: #333333; border-radius: 8px; font-weight: bold; text-align: center;">
+                {% for m in messages %}
+                    <p class="msg">{{ m }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
         {% block content %}
         {% endblock %}
     </main>
