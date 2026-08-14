@@ -4,10 +4,26 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Menu, Booking
 from .serializers import MenuSerializer, BookingSerializer
 
+from .forms import BookingForm
 
 def index(request):
     """Render the Little Lemon home/landing page."""
     return render(request, 'index.html', {})
+
+def web_menu_view(request):
+    """Traditional view returning HTML for the menu."""
+    menu_items = Menu.objects.all()
+    return render(request, 'menu.html', {'menu_items': menu_items})
+
+def web_book_view(request):
+    """Traditional view returning HTML for booking form."""
+    if request.method == 'POST':
+        form = BookingForm(request.POST)
+        if form.is_valid():
+            form.save()
+    else:
+        form = BookingForm()
+    return render(request, 'book.html', {'form': form})
 
 
 class MenuItemsView(generics.ListCreateAPIView):
