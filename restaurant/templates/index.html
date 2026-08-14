@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Little Lemon Restaurant</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: #495E57; color: #EDEFEE; min-height: 100vh; display: flex; flex-direction: column; }
+        header { background: #333333; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #F4CE14; }
+        .logo { font-size: 1.8rem; font-weight: 800; color: #F4CE14; letter-spacing: 1px; }
+        .logo span { color: #EE9972; }
+        nav a { color: #EDEFEE; text-decoration: none; margin-left: 1.5rem; font-weight: 600; transition: color 0.2s; }
+        nav a:hover { color: #F4CE14; }
+        main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 3rem 1.5rem; text-align: center; }
+        .hero { max-width: 700px; background: rgba(0,0,0,0.25); padding: 3rem 2.5rem; border-radius: 16px; border: 1px solid rgba(244, 206, 20, 0.3); backdrop-filter: blur(8px); }
+        h1 { font-size: 3rem; color: #F4CE14; margin-bottom: 0.5rem; }
+        h2 { font-size: 1.5rem; color: #EE9972; font-weight: 400; margin-bottom: 1.5rem; }
+        p { font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem; color: #EDEFEE; }
+        .btn-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .btn { background: #F4CE14; color: #333333; padding: 0.8rem 1.8rem; border-radius: 8px; font-weight: 700; text-decoration: none; transition: transform 0.2s, background 0.2s; }
+        .btn:hover { background: #EE9972; color: #fff; transform: translateY(-2px); }
+        .btn-outline { background: transparent; border: 2px solid #F4CE14; color: #F4CE14; }
+        .btn-outline:hover { background: #F4CE14; color: #333; }
+        footer { background: #333333; text-align: center; padding: 1.2rem; font-size: 0.9rem; color: #888; border-top: 1px solid rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Little <span>Lemon</span></div>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/menu/">Menu API</a>
+            <a href="/restaurant/booking/tables/">Bookings API</a>
+            <a href="/admin/">Admin</a>
+        </nav>
+    </header>
+    <main>
+        <div class="hero">
+            <h1>Little Lemon</h1>
+            <h2>Chicago • Mediterranean Cuisine</h2>
+            <p>Welcome to Little Lemon. We are a family-owned Mediterranean restaurant focused on traditional recipes served with a modern twist. Explore our menu and reserve a table online.</p>
+            <div class="btn-group">
+                <a href="/menu/" class="btn">View Menu API</a>
+                <a href="/restaurant/booking/tables/" class="btn btn-outline">Table Reservations</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        &copy; 2026 Little Lemon Restaurant. Built with Django & Django REST Framework.
+    </footer>
+</body>
+</html>
