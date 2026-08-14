@@ -1,3 +1,41 @@
 from django.test import TestCase
+from django.utils import timezone
+from rest_framework.test import APIClient
+from rest_framework import status
+from .models import Menu, Booking
+from .serializers import MenuSerializer
 
-# Create your tests here.
+
+class MenuItemTest(TestCase):
+    def test_get_item(self):
+        item = Menu.objects.create(title="IceCream", price=80, inventory=100)
+        self.assertEqual(item.get_item(), "IceCream : 80")
+        self.assertEqual(str(item), "IceCream : 80")
+
+
+class MenuViewTest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.item1 = Menu.objects.create(title="Bruschetta", price=12.99, inventory=25)
+        self.item2 = Menu.objects.create(title="Lemon Dessert", price=8.50, inventory=15)
+
+    def test_getall(self):
+        response = self.client.get('/menu/')
+        items = Menu.objects.all()
+        serializer = MenuSerializer(items, many=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, serializer.data)
+
+    def test_create_item(self):
+        payload = {"title": "Greek Salad", "price": "14.50", "inventory": 30}
+        response = self.client.post('/menu/', payload)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Menu.objects.count(), 3)
+
+
+class BookingModelTest(TestCase):
+    def test_booking_creation(self):
+        now = timezone.now()
+        booking = Booking.objects.create(name="John Doe", no_of_guests=4, booking_date=now)
+        self.assertEqual(booking.name, "John Doe")
+        self.assertEqual(booking.no_of_guests, 4)
