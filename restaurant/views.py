@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from rest_framework import generics, viewsets
 from rest_framework.permissions import AllowAny
@@ -15,11 +15,17 @@ def index(request):
     return render(request, 'index.html', {})
 
 def web_menu_view(request):
-    """Traditional view returning HTML for the menu."""
+    """Traditional view returning HTML for the menu list."""
     # Fetch all menu items from the database (Module 3)
     menu_items = Menu.objects.all()
     # Pass the items to the template so it can loop through them (Module 4)
     return render(request, 'menu.html', {'menu_items': menu_items})
+
+def web_menu_item_view(request, pk):
+    """Traditional view returning HTML for a single menu item with 404 handling."""
+    # get_object_or_404 raises Http404 (404 status) instead of unhandled DoesNotExist (500 crash)
+    menu_item = get_object_or_404(Menu, pk=pk)
+    return render(request, 'menu_item.html', {'menu_item': menu_item})
 
 def web_book_view(request):
     """Traditional view returning HTML for booking form."""

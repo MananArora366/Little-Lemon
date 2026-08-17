@@ -56,3 +56,18 @@ class WebViewTest(TestCase):
         })
         self.assertEqual(r.status_code, 302)
         self.assertEqual(Booking.objects.count(), 1)
+
+    def test_single_menu_item_renders(self):
+        item = Menu.objects.create(title="Tiramisu", price=9.99, inventory=10)
+        r = self.client.get(reverse('restaurant:web-menu-item', kwargs={'pk': item.pk}))
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "Tiramisu")
+
+    def test_single_menu_item_404_on_missing_id(self):
+        r = self.client.get(reverse('restaurant:web-menu-item', kwargs={'pk': 999}))
+        self.assertEqual(r.status_code, 404)
+
+    def test_empty_menu_renders_empty_state(self):
+        r = self.client.get(reverse('restaurant:web-menu'))
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "No items on the menu yet.")

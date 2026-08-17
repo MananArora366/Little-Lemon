@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="menu-card" style="max-width: 600px; margin: 2rem auto; text-align: center;">
+    <h1 style="color: #F4CE14; margin-bottom: 1rem;">{{ menu_item.title }}</h1>
+    <p style="font-size: 1.8rem; color: #EE9972; margin-bottom: 1rem;">${{ menu_item.price }}</p>
+    <p style="font-size: 1.1rem; color: #EDEFEE; margin-bottom: 2rem;">Current Inventory: {{ menu_item.inventory }} in stock</p>
+    <a href="{% url 'restaurant:web-menu' %}" class="btn">← Back to Menu</a>
+</div>
+{% endblock %}

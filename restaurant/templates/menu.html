@@ -4,12 +4,14 @@
 <div class="menu-grid">
     {% for item in menu_items %}
     <div class="menu-card">
-        <h3>{{ item.title }}</h3>
+        <a href="{% url 'restaurant:web-menu-item' item.pk %}" style="text-decoration: none; color: inherit;">
+            <h3>{{ item.title }}</h3>
+        </a>
         <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">${{ item.price }}</p>
         <p style="font-size: 0.9rem; color: #bbb;">Available: {{ item.inventory }}</p>
     </div>
     {% empty %}
-    <p>No menu items available at the moment.</p>
+    <p style="text-align: center; color: #EDEFEE; font-size: 1.1rem; grid-column: 1 / -1;">No items on the menu yet.</p>
     {% endfor %}
 </div>
 {% endblock %}
