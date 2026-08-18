@@ -15,9 +15,9 @@ def index(request):
     return render(request, 'index.html', {})
 
 def web_menu_view(request):
-    """Traditional view returning HTML for the menu list."""
-    # Fetch all menu items from the database (Module 3)
-    menu_items = Menu.objects.all()
+    """Traditional view returning HTML for the menu list (filtered & ordered)."""
+    # Only fetch items that are in stock, sorted alphabetically by title
+    menu_items = Menu.objects.filter(inventory__gt=0).order_by('title')
     # Pass the items to the template so it can loop through them (Module 4)
     return render(request, 'menu.html', {'menu_items': menu_items})
 
