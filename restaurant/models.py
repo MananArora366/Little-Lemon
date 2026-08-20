@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Menu(models.Model):
@@ -15,7 +16,12 @@ class Menu(models.Model):
 
 class Booking(models.Model):
     name = models.CharField(max_length=255)
-    no_of_guests = models.IntegerField()
+    no_of_guests = models.IntegerField(
+        validators=[
+            MinValueValidator(1, message="Number of guests must be at least 1."),
+            MaxValueValidator(20, message="Maximum booking capacity is 20 guests per table.")
+        ]
+    )
     booking_date = models.DateTimeField()
 
     def __str__(self):

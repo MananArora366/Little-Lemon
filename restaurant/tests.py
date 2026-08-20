@@ -49,13 +49,36 @@ class WebViewTest(TestCase):
         self.assertContains(r, "Bruschetta")
 
     def test_booking_post_redirects(self):
+        # Use future date for valid booking
+        future_date = (timezone.now() + timezone.timedelta(days=7)).strftime('%Y-%m-%dT%H:%M')
         r = self.client.post(reverse('restaurant:web-book'), {
             "name": "Manan", 
             "no_of_guests": 4,
-            "booking_date": "2026-08-20T19:00",
+            "booking_date": future_date,
         })
         self.assertEqual(r.status_code, 302)
         self.assertEqual(Booking.objects.count(), 1)
+
+    def test_booking_negative_guests_rejected(self):
+        future_date = (timezone.now() + timezone.timedelta(days=7)).strftime('%Y-%m-%dT%H:%M')
+        r = self.client.post(reverse('restaurant:web-book'), {
+            "name": "Bad Guest",
+            "no_of_guests": -5,
+            "booking_date": future_date,
+        })
+        # Should stay on page (200) and NOT create record in database
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(Booking.objects.count(), 0)
+
+    def test_booking_past_date_rejected(self):
+        r = self.client.post(reverse('restaurant:web-book'), {
+            "name": "Time Traveler",
+            "no_of_guests": 4,
+            "booking_date": "2020-01-01T10:00",
+        })
+        # Should stay on page (200) and NOT create record in database
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(Booking.objects.count(), 0)
 
     def test_single_menu_item_renders(self):
         item = Menu.objects.create(title="Tiramisu", price=9.99, inventory=10)
