@@ -1,10 +1,11 @@
 from django.test import TestCase
 from django.utils import timezone
 from django.urls import reverse
+from django.core.exceptions import ValidationError
 from rest_framework.test import APIClient
 from rest_framework import status
 from .models import Menu, Booking
-from .serializers import MenuSerializer
+from .serializers import MenuSerializer, BookingSerializer
 
 
 class MenuItemTest(TestCase):
@@ -36,10 +37,65 @@ class MenuViewTest(TestCase):
 
 class BookingModelTest(TestCase):
     def test_booking_creation(self):
-        now = timezone.now()
+        now = timezone.now() + timezone.timedelta(days=1)
         booking = Booking.objects.create(name="John Doe", no_of_guests=4, booking_date=now)
         self.assertEqual(booking.name, "John Doe")
         self.assertEqual(booking.no_of_guests, 4)
+
+    def test_model_full_clean_rejects_past_date(self):
+        past_date = timezone.now() - timezone.timedelta(days=1)
+        booking = Booking(name="Time Traveler", no_of_guests=4, booking_date=past_date)
+        with self.assertRaises(ValidationError):
+            booking.full_clean()
+
+    def test_model_full_clean_rejects_invalid_guests(self):
+        future_date = timezone.now() + timezone.timedelta(days=1)
+        booking_negative = Booking(name="Bad Guest", no_of_guests=0, booking_date=future_date)
+        with self.assertRaises(ValidationError):
+            booking_negative.full_clean()
+
+        booking_overflow = Booking(name="Party of 50", no_of_guests=50, booking_date=future_date)
+        with self.assertRaises(ValidationError):
+            booking_overflow.full_clean()
+
+
+class BookingAPITest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+    def test_api_rejects_past_date(self):
+        past_date = (timezone.now() - timezone.timedelta(days=10)).isoformat()
+        payload = {
+            "name": "API Past Date",
+            "no_of_guests": 4,
+            "booking_date": past_date,
+        }
+        response = self.client.post('/restaurant/booking/tables/', payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("booking_date", response.data)
+
+    def test_api_rejects_invalid_guests(self):
+        future_date = (timezone.now() + timezone.timedelta(days=2)).isoformat()
+        payload = {
+            "name": "API Invalid Guests",
+            "no_of_guests": -5,
+            "booking_date": future_date,
+        }
+        response = self.client.post('/restaurant/booking/tables/', payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("no_of_guests", response.data)
+
+    def test_api_accepts_valid_booking(self):
+        future_date = (timezone.now() + timezone.timedelta(days=2)).isoformat()
+        payload = {
+            "name": "API Valid Guest",
+            "no_of_guests": 4,
+            "booking_date": future_date,
+        }
+        response = self.client.post('/restaurant/booking/tables/', payload)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Booking.objects.count(), 1)
+
 
 class WebViewTest(TestCase):
     def test_menu_page_renders(self):
@@ -49,7 +105,6 @@ class WebViewTest(TestCase):
         self.assertContains(r, "Bruschetta")
 
     def test_booking_post_redirects(self):
-        # Use future date for valid booking
         future_date = (timezone.now() + timezone.timedelta(days=7)).strftime('%Y-%m-%dT%H:%M')
         r = self.client.post(reverse('restaurant:web-book'), {
             "name": "Manan", 
@@ -66,7 +121,6 @@ class WebViewTest(TestCase):
             "no_of_guests": -5,
             "booking_date": future_date,
         })
-        # Should stay on page (200) and NOT create record in database
         self.assertEqual(r.status_code, 200)
         self.assertEqual(Booking.objects.count(), 0)
 
@@ -76,7 +130,6 @@ class WebViewTest(TestCase):
             "no_of_guests": 4,
             "booking_date": "2020-01-01T10:00",
         })
-        # Should stay on page (200) and NOT create record in database
         self.assertEqual(r.status_code, 200)
         self.assertEqual(Booking.objects.count(), 0)
 
