@@ -31,12 +31,66 @@ source .venv/bin/activate          # Windows: .venv\Scripts\activate
 
 pip install -r requirements.txt
 
+# Create local environment config
+cp .env.example .env
+# Generate a secret key and add it to .env
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+
 python manage.py migrate
 python manage.py createsuperuser   # optional, for /admin/
 python manage.py runserver
 ```
 
 Open `http://127.0.0.1:8000/`.
+
+---
+
+## Environment Configuration
+
+Configuration is loaded from environment variables (or `.env` via `python-dotenv`).
+
+| Variable | Default (Dev) | Description | Production Example |
+|---|---|---|---|
+| `DEBUG` | `False` (defaults to `False` if unset) | Django debug mode. Set `True` in local `.env`. | `False` |
+| `SECRET_KEY` | *(None)* | App cryptographic key. Crashes if missing when `DEBUG=False`. | `<50-char-random-secret>` |
+| `ALLOWED_HOSTS` | `localhost,127.0.0.1,testserver` | Comma-separated list of allowed host header values. | `littlelemon.com,api.littlelemon.com` |
+| `DATABASE_URL` | *(None)* | Connection string for database. Falls back to local SQLite if unset. | `postgres://user:pass@db-host:5432/dbname` |
+| `SECURE_PRODUCTION`| `False` | Toggles HTTPS redirect, HSTS, secure cookies & proxy headers. | `True` |
+
+> [!NOTE]
+> **Why `SECURE_PRODUCTION` is separate from `not DEBUG`:** Django's test runner forces `DEBUG=False`. If security redirects and secure-only cookies were keyed directly on `not DEBUG`, running `manage.py test` would fail because tests run over plain HTTP and expect unencrypted cookies. `SECURE_PRODUCTION` ensures security hardening only activates on actual production hosts.
+
+---
+
+## Production & Deployment
+
+### Production Dress Rehearsal (Local)
+
+To simulate how the application runs in production behind a WSGI server with static assets served via WhiteNoise:
+
+```bash
+# Collect and compress static assets
+python manage.py collectstatic --noinput
+
+# Run with Gunicorn in production mode (DEBUG=False)
+DEBUG=False gunicorn littlelemon.wsgi --bind 127.0.0.1:8080
+```
+
+Open `http://127.0.0.1:8080/admin/` to verify that WhiteNoise serves collected and hashed static assets correctly without an external web server.
+
+### Docker Container
+
+Build and run the containerized application:
+
+```bash
+# Build Docker image
+docker build -t littlelemon .
+
+# Run container (injecting runtime SECRET_KEY)
+docker run --rm -p 8080:8000 -e SECRET_KEY="your-production-secret-key" -e DEBUG="False" littlelemon
+```
+
+The `Dockerfile` runs `collectstatic` at build time using a dummy secret key so assets are pre-packaged into the image, while requiring a real `SECRET_KEY` at runtime.
 
 ---
 
