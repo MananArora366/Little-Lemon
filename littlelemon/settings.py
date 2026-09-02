@@ -139,8 +139,43 @@ STORAGES = {
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
+# Console in development so mail is visible in the terminal; SMTP in production.
+# Nothing here sends mail yet, but `manage.py check --deploy` treats a console
+# backend as an error, and a booking app will eventually want confirmations.
 MAILERS = {
     "default": {
-        "BACKEND": "django.core.mail.backends.console.EmailBackend",
+        "BACKEND": os.environ.get(
+            "EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"
+        ),
+        "HOST": os.environ.get("EMAIL_HOST", ""),
+        "PORT": int(os.environ.get("EMAIL_PORT", "587")),
+        "USER": os.environ.get("EMAIL_HOST_USER", ""),
+        "PASSWORD": os.environ.get("EMAIL_HOST_PASSWORD", ""),
+        "USE_TLS": os.environ.get("EMAIL_USE_TLS", "True").lower() in ("true", "1", "yes"),
     },
 }
+
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "no-reply@littlelemon.local")
+
+
+# --- Production hardening ---------------------------------------------------
+# Gated on an explicit flag, NOT on `not DEBUG`. Django's test runner forces
+# DEBUG=False, so keying this off DEBUG would turn every test request into a
+# 301 from the SSL redirect, and secure-only cookies would stop being sent.
+SECURE_PRODUCTION = os.environ.get("SECURE_PRODUCTION", "False").lower() in ("true", "1", "yes")
+
+if SECURE_PRODUCTION:
+    # PaaS hosts terminate TLS at their proxy and forward plain HTTP, so Django
+    # has to be told to trust the forwarded scheme. Without this pairing,
+    # SECURE_SSL_REDIRECT sees http, redirects to https, the proxy forwards http
+    # again, and the request loops forever.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = True
+
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+    # One year. includeSubDomains scopes to this host only, so it is safe here.
+    # Preload is deliberately NOT set: submission is manual and hard to reverse.
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
