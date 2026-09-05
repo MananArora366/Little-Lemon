@@ -1,0 +1,123 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-09-02T09:33:00.000Z",
+  "__export_source": "insomnia.desktop.app:v9.0.0",
+  "resources": [
+    {
+      "_id": "wrk_coursera_apis",
+      "parentId": null,
+      "modified": 1788341580000,
+      "created": 1788341580000,
+      "name": "Coursera APIs - Httpbin Requests",
+      "description": "Pre-configured requests for the Insomnia reading exercise",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "req_get_request",
+      "parentId": "wrk_coursera_apis",
+      "modified": 1788341580000,
+      "created": 1788341580000,
+      "url": "https://httpbin.org/get",
+      "name": "GET request using Insomnia",
+      "description": "",
+      "method": "GET",
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          {
+            "name": "title",
+            "value": "Lord of the Rings",
+            "id": "pair_1"
+          },
+          {
+            "name": "author",
+            "value": "JRR Tolkien",
+            "id": "pair_2"
+          }
+        ]
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1788341580000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_post_form_request",
+      "parentId": "wrk_coursera_apis",
+      "modified": 1788341580000,
+      "created": 1788341580000,
+      "url": "https://httpbin.org/post",
+      "name": "POST request using Insomnia",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          {
+            "name": "title",
+            "value": "Lord of the Rings",
+            "id": "pair_3"
+          },
+          {
+            "name": "author",
+            "value": "JRR Tolkien",
+            "id": "pair_4"
+          }
+        ]
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1788341570000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_post_json_request",
+      "parentId": "wrk_coursera_apis",
+      "modified": 1788341580000,
+      "created": 1788341580000,
+      "url": "https://httpbin.org/post",
+      "name": "POST request using JSON object",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Lord of the Rings\",\n  \"author\": \"JRR Tolkien\",\n  \"published\": {\n    \"year\": 1954,\n    \"day\": 29\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1788341560000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    }
+  ]
+}
