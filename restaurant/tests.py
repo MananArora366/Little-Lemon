@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.utils import timezone
 from django.urls import reverse
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 from rest_framework import status
 from .models import Menu, Booking
@@ -18,6 +19,7 @@ class MenuItemTest(TestCase):
 class MenuViewTest(TestCase):
     def setUp(self):
         self.client = APIClient()
+        self.user = User.objects.create_user(username="chef", password="password123")
         self.item1 = Menu.objects.create(title="Bruschetta", price=12.99, inventory=25)
         self.item2 = Menu.objects.create(title="Lemon Dessert", price=8.50, inventory=15)
 
@@ -28,7 +30,13 @@ class MenuViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, serializer.data)
 
-    def test_create_item(self):
+    def test_unauthenticated_cannot_create_item(self):
+        payload = {"title": "Greek Salad", "price": "14.50", "inventory": 30}
+        response = self.client.post(reverse('restaurant:menu-list'), payload)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_create_item_authenticated(self):
+        self.client.force_authenticate(user=self.user)
         payload = {"title": "Greek Salad", "price": "14.50", "inventory": 30}
         response = self.client.post(reverse('restaurant:menu-list'), payload)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -62,6 +70,13 @@ class BookingModelTest(TestCase):
 class BookingAPITest(TestCase):
     def setUp(self):
         self.client = APIClient()
+        self.user = User.objects.create_user(username="testuser", password="password123")
+        self.client.force_authenticate(user=self.user)
+
+    def test_unauthenticated_booking_access_rejected(self):
+        unauth_client = APIClient()
+        response = unauth_client.get('/restaurant/booking/tables/')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_api_rejects_past_date(self):
         past_date = (timezone.now() - timezone.timedelta(days=10)).isoformat()
@@ -95,6 +110,35 @@ class BookingAPITest(TestCase):
         response = self.client.post('/restaurant/booking/tables/', payload)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Booking.objects.count(), 1)
+
+
+class AuthenticationAPITest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+    def test_djoser_user_registration_and_token_login(self):
+        # 1. Register a new user via Djoser
+        reg_payload = {
+            "username": "djoser_user",
+            "password": "StrongPassword123!",
+        }
+        reg_resp = self.client.post('/auth/users/', reg_payload)
+        self.assertEqual(reg_resp.status_code, status.HTTP_201_CREATED)
+
+        # 2. Login to obtain auth token
+        login_payload = {
+            "username": "djoser_user",
+            "password": "StrongPassword123!",
+        }
+        login_resp = self.client.post('/auth/token/login/', login_payload)
+        self.assertEqual(login_resp.status_code, status.HTTP_200_OK)
+        self.assertIn("auth_token", login_resp.data)
+        token = login_resp.data["auth_token"]
+
+        # 3. Use token in Authorization header to access protected Booking endpoint
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token}")
+        booking_resp = self.client.get('/restaurant/booking/tables/')
+        self.assertEqual(booking_resp.status_code, status.HTTP_200_OK)
 
 
 class WebViewTest(TestCase):

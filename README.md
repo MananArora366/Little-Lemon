@@ -110,14 +110,20 @@ The `Dockerfile` runs `collectstatic` at build time using a dummy secret key so 
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET`, `POST` | `/menu/` | List or create menu items |
-| `GET`, `PUT`, `PATCH`, `DELETE` | `/menu/<pk>/` | Retrieve, update, or delete a menu item |
-| `GET`, `POST` | `/restaurant/booking/tables/` | List or create bookings |
-| `GET`, `PUT`, `PATCH`, `DELETE` | `/restaurant/booking/tables/<pk>/` | Retrieve, update, or delete a booking |
-| | `/api-auth/` | DRF browsable-API login |
+| `GET` | `/menu/` | List in-stock menu items (Public) |
+| `POST` | `/menu/` | Create a new menu item (Authenticated) |
+| `GET` | `/menu/<pk>/` | Retrieve a single menu item (Public) |
+| `PUT`, `PATCH`, `DELETE` | `/menu/<pk>/` | Update or delete a menu item (Authenticated) |
+| `GET`, `POST` | `/restaurant/booking/tables/` | List or create table bookings (Authenticated) |
+| `GET`, `PUT`, `PATCH`, `DELETE` | `/restaurant/booking/tables/<pk>/` | Retrieve, update, or delete a booking (Authenticated) |
+| `POST` | `/auth/users/` | Register a new user account (Djoser) |
+| `POST` | `/auth/token/login/` | Obtain token authentication credentials |
+| `POST` | `/auth/token/logout/` | Invalidate active authentication token |
+| | `/api-auth/` | DRF browsable-API session login |
 
-> API endpoints currently use `AllowAny`. Authentication and permissions are
-> handled in the follow-up *APIs* course.
+> API endpoints are secured using DRF Token Authentication (`rest_framework.authtoken`)
+> and Djoser. Booking endpoints require `IsAuthenticated`; menu endpoints allow public
+> read-only access with authenticated writes (`IsAuthenticatedOrReadOnly`).
 
 ---
 

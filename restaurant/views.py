@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from rest_framework import generics, viewsets
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from .models import Menu, Booking
 from .serializers import MenuSerializer, BookingSerializer
 
@@ -47,21 +47,21 @@ def web_book_view(request):
 
 
 class MenuItemsView(generics.ListCreateAPIView):
-    """API view to list all menu items or create a new menu item."""
+    """API view to list all menu items (public) or create a new menu item (authenticated)."""
     queryset = Menu.objects.all()
     serializer_class = MenuSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 class SingleMenuItemView(generics.RetrieveUpdateDestroyAPIView):
-    """API view to get, update, or delete a single menu item by ID."""
+    """API view to get a menu item (public) or update/delete (authenticated)."""
     queryset = Menu.objects.all()
     serializer_class = MenuSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 class BookingViewSet(viewsets.ModelViewSet):
-    """ModelViewSet to handle CRUD operations on table bookings."""
+    """ModelViewSet to handle CRUD operations on table bookings (requires authentication)."""
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
